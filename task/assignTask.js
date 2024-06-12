@@ -1,7 +1,6 @@
 const { connectToDatabase } = require("../db/dbConnector");
 const { z } = require("zod");
 const middy = require("@middy/core");
-const { authorize } = require("../util/authorizer");
 const { errorHandler } = require("../util/errorHandler");
 const { pathParamsValidator } = require("../util/pathParamsValidator");
 
@@ -37,6 +36,5 @@ exports.handler = middy(async (event) => {
         body: JSON.stringify({ message: "task assigned successfully" }),
     };
 })
-    .use(authorize())
     .use(pathParamsValidator(taskIdSchema, assignIdSchema))
     .use(errorHandler());

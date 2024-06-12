@@ -4,7 +4,6 @@ const { generateStateMachine1 } = require("./generateStateMachine")
 const { z } = require("zod")
 const middy = require("@middy/core")
 const { errorHandler } = require("../util/errorHandler")
-const { authorize } = require("../util/authorizer")
 const { bodyValidator } = require("../util/bodyValidator")
 const { v4: uuid } = require("uuid")
 
@@ -117,6 +116,5 @@ exports.handler = middy(async (event, context) => {
 		body: JSON.stringify(result.rows[0]),
 	}
 })
-	.use(authorize())
 	.use(bodyValidator(bodySchema))
 	.use(errorHandler())

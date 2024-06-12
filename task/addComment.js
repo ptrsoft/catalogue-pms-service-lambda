@@ -1,7 +1,6 @@
 const { connectToDatabase } = require("../db/dbConnector");
 const { z } = require("zod")
 const middy = require("@middy/core");
-const { authorize } = require("../util/authorizer")
 const { pathParamsValidator } = require("../util/pathParamsValidator")
 const { bodyValidator } = require("../util/bodyValidator")
 const { errorHandler } = require("../util/errorHandler")
@@ -56,7 +55,6 @@ exports.handler = middy(async (event) => {
         body: JSON.stringify("comment added"),
     }
 })
-    .use(authorize())
     .use(pathParamsValidator(idSchema))
     .use(bodyValidator(requestBodySchema))
     .use(errorHandler());

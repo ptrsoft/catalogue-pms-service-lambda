@@ -1,7 +1,6 @@
 const { connectToDatabase } = require("../db/dbConnector");
 const middy = require("@middy/core");
 const { errorHandler } = require("../util/errorHandler");
-const { authorize } = require("../util/authorizer");
 
 const totalProjectsQuery = `
             SELECT
@@ -70,5 +69,5 @@ const projectByStatusResult = await client.query(projectByStatusQuery,[org_id]);
 		}),
 	};
 })
-	.use(authorize())
+
 	.use(errorHandler());

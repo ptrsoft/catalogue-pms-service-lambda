@@ -2,7 +2,6 @@ const { connectToDatabase } = require("../db/dbConnector")
 const { z } = require("zod")
 const middy = require("@middy/core")
 const { errorHandler } = require("../util/errorHandler")
-const { authorize } = require("../util/authorizer")
 const { optionalParamsValidator } = require("../util/optionalParamsValidator");
 
 const querySchema = z
@@ -76,7 +75,6 @@ exports.handler = middy(async (event, context) => {
 		body: JSON.stringify(outputData),
 	}
 })
-	.use(authorize())
 	.use(optionalParamsValidator(querySchema))
 	.use(errorHandler())
 
