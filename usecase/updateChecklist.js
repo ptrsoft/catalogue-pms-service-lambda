@@ -1,7 +1,6 @@
 const { connectToDatabase } = require("../db/dbConnector");
 const { z } = require("zod");
 const middy = require("@middy/core");
-const { authorize } = require("../util/authorizer");
 const { errorHandler } = require("../util/errorHandler");
 const { pathParamsValidator } = require("../util/pathParamsValidator");
 const { bodyValidator } = require("../util/bodyValidator");
@@ -44,7 +43,6 @@ exports.handler = middy(async (event, context) => {
       body: JSON.stringify(updatedChecklist),
     };
 })
-  .use(authorize())
   .use(pathParamsValidator(idSchema))
   .use(bodyValidator(checklistSchema))
   .use(errorHandler());

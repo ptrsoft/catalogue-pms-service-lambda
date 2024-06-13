@@ -3,7 +3,6 @@ const { connectToDatabase } = require("../db/dbConnector")
 const { z } = require("zod")
 const middy = require("@middy/core")
 const { errorHandler } = require("../util/errorHandler")
-const { authorize } = require("../util/authorizer")
 const { pathParamsValidator } = require("../util/pathParamsValidator")
 
 const idSchema = z.object({
@@ -71,6 +70,5 @@ exports.handler = middy(async (event, context) => {
 		await client.end()
 	}
 })
-	.use(authorize())
 	.use(pathParamsValidator(idSchema))
 	.use(errorHandler())

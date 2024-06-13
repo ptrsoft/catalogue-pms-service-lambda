@@ -1,7 +1,6 @@
 const { connectToDatabase } = require("../db/dbConnector");
 const { z } = require("zod");
 const middy = require("@middy/core");
-const { authorize } = require("../util/authorizer");
 const { pathParamsValidator } = require("../util/pathParamsValidator");
 const { errorHandler } = require("../util/errorHandler");
 
@@ -25,6 +24,5 @@ exports.handler = middy(async (event) => {
         body: JSON.stringify({ message: "Document deleted" }),
     };
 })
-    .use(authorize())
     .use(pathParamsValidator(idSchema))
     .use(errorHandler());
