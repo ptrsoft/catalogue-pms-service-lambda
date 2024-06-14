@@ -2,7 +2,6 @@ const { connectToDatabase } = require("../db/dbConnector")
 const { SFNClient, SendTaskSuccessCommand } = require("@aws-sdk/client-sfn")
 const { z } = require("zod")
 const middy = require("@middy/core");
-const { authorize } = require("../util/authorizer")
 const { pathParamsValidator } = require("../util/pathParamsValidator")
 const { errorHandler } = require("../util/errorHandler")
 
@@ -72,6 +71,5 @@ exports.handler = middy(async (event) => {
         await client.end()
     }
 })
-    .use(authorize())
     .use(pathParamsValidator(idSchema))
     .use(errorHandler())

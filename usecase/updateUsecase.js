@@ -7,7 +7,6 @@ const {
   StartExecutionCommand,
 } = require("@aws-sdk/client-sfn");
 const middy = require("@middy/core");
-const { authorize } = require("../util/authorizer");
 const { errorHandler } = require("../util/errorHandler");
 const { pathParamsValidator } = require("../util/pathParamsValidator");
 const { bodyValidator } = require("../util/bodyValidator");
@@ -138,7 +137,6 @@ exports.handler = middy(async (event, context) => {
   };
 })
 
-  .use(authorize())
   .use(pathParamsValidator(idSchema))
   .use(bodyValidator(UpdateSchema))
   .use(errorHandler());

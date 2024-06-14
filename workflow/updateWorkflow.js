@@ -3,7 +3,6 @@ const { SFNClient, UpdateStateMachineCommand } = require("@aws-sdk/client-sfn")
 const { generateStateMachine2 } = require("./generateStateMachine")
 const { z } = require("zod")
 const middy = require("@middy/core")
-const { authorize } = require("../util/authorizer")
 const { errorHandler } = require("../util/errorHandler")
 const { bodyValidator } = require("../util/bodyValidator")
 const { pathParamsValidator } = require("../util/pathParamsValidator")
@@ -86,7 +85,6 @@ exports.handler = middy(async (event, context) => {
 		body: JSON.stringify(result.rows[0]),
 	}
 })
-	.use(authorize())
 	.use(pathParamsValidator(idSchema))
 	.use(bodyValidator(MetaDataSchema))
 	.use(errorHandler())
