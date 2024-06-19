@@ -12,7 +12,7 @@ const resourceIdSchema = z
 
 exports.handler = middy(async (event) => {
   // context.callbackWaitsForEmptyEventLoop = false
-  const org_id = event.user["custom:org_id"];
+  // const org_id = event.user["custom:org_id"];
   const resourceId = event.queryStringParameters?.resource_id;
 
   // const fromDate = event.queryStringParameters?.from_date ?? null;
@@ -38,17 +38,15 @@ exports.handler = middy(async (event) => {
 			FROM
 				employee AS r
 			LEFT JOIN
-				tasks_table AS t ON r.id = t.assignee_id
-			WHERE
-				r.org_id =$1`;
+				tasks_table AS t ON r.id = t.assignee_id`;
 
   const queryParams = [];
-  queryParams.push(org_id);
+  // queryParams.push(org_id);
 
   if (resourceId != null) {
     query += `
-            AND
-                r.id = $2::uuid`;
+            WHERE
+                r.id = $1::uuid`;
     queryParams.push(resourceId);
   }
   // query += `

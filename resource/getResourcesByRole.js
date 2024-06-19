@@ -24,17 +24,16 @@ const query = `
             LEFT join
                 emp_designation d on ed.designation_id = d.id
             WHERE 
-                LOWER(d.designation) = LOWER($1)
-            AND
-                e.org_id = $2`
+                LOWER(d.designation) = LOWER($1)`
 
 exports.handler = middy(async (event, context) => {
 	context.callbackWaitsForEmptyEventLoop = false
 	const designationName = event.queryStringParameters?.designation ?? null
-	const org_id = event.user["custom:org_id"]
+	// const org_id = event.user["custom:org_id"]
 	const client = await connectToDatabase()
 
-	const result = await client.query(query, [designationName, org_id])
+	const result = await client.query(query, [designationName])
+	// const result = await client.query(query, [designationName, org_id])
 	await client.end()
 	return {
 		statusCode: 200,

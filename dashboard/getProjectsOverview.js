@@ -19,7 +19,7 @@ const statusSchema = z
 
 exports.handler = middy(async (event) => {
   // context.callbackWaitsForEmptyEventLoop = false
-  const org_id = event.user["custom:org_id"];
+  // const org_id = event.user["custom:org_id"];
   const status = event.queryStringParameters?.status ?? null;
 
   const client = await connectToDatabase();
@@ -37,17 +37,15 @@ exports.handler = middy(async (event) => {
 			LEFT JOIN
 				usecases_table as u on p.id = u.project_id 
 			LEFT JOIN
-				tasks_table as t on u.id = t.usecase_id and p.id = t.project_id
-			WHERE
-				p.org_id = $1`;
+				tasks_table as t on u.id = t.usecase_id and p.id = t.project_id`;
 
   const queryParams = [];
-  queryParams.push(org_id);
+  // queryParams.push(org_id);
 
   if (status !== null) {
     query += `
-			AND
-                (p.project->>'status' = $2)`;
+			WHERE
+                (p.project->>'status' = $1)`;
     queryParams.push(status);
   }
   query += `

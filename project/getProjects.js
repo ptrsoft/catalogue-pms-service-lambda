@@ -18,7 +18,7 @@ const Schema = z
 
 exports.handler = middy(async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false;
-  const org_id = event.user["custom:org_id"];
+  // const org_id = event.user["custom:org_id"];
   let page = event.queryStringParameters?.page ?? null;
   if (page == null) {
     page = 1;
@@ -40,14 +40,13 @@ exports.handler = middy(async (event, context) => {
                     from 
                         projects_table as p
                     left join 
-                        usecases_table as u on p.id = u.project_id
-					WHERE p.org_id = $1`;
+                        usecases_table as u on p.id = u.project_id`;
   let queryparams = [];
-  queryparams.push(org_id);
+  // queryparams.push(org_id);
   if (status != null) {
     query += `
-				AND 
-                    p.project->>'status' = $2`;
+				WHERE 
+                    p.project->>'status' = $1`;
     queryparams.push(status);
   }
   query += `
