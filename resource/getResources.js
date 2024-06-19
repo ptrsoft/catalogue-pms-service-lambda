@@ -34,7 +34,7 @@ const resourcesQuery = `
 
 exports.handler = middy(async (event, context) => {
 	context.callbackWaitsForEmptyEventLoop = false
-	const org_id = event.user["custom:org_id"]
+	// const org_id = event.user["custom:org_id"]
 	const projectFilter =
 		event.queryStringParameters && event.queryStringParameters.project_id
 	const client = await connectToDatabase()
@@ -47,18 +47,17 @@ exports.handler = middy(async (event, context) => {
                 p.project->>'project_icon_url' AS project_icon_url,
                 p.project->>'team' AS team
             FROM
-                projects_table p
-			WHERE
-				p.org_id = $1`
+                projects_table p`
 
-	queryParams.push(org_id);
+	// queryParams.push(org_id);
 	if (projectFilter) {
 		projectsQuery += `
-                AND
-                	id = $2`
+                WHERE
+                	id = $1`
 		queryParams.push(projectFilter)
 	}
-	const resourcesResult = await client.query(resourcesQuery, [org_id])
+	const resourcesResult = await client.query(resourcesQuery)
+	// const resourcesResult = await client.query(resourcesQuery, [org_id])
 	const projectsResult = await client.query(projectsQuery, queryParams)
 	const outputData = processResourcesData(
 		resourcesResult.rows,

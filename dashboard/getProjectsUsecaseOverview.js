@@ -12,7 +12,7 @@ const project_idSchema = z
 
 exports.handler = middy(async (event, context, callback) => {
   // context.callbackWaitsForEmptyEventLoop = false
-  const org_id = event.user["custom:org_id"];
+  // const org_id = event.user["custom:org_id"];
   const projectId = event.queryStringParameters?.project_id ?? null;
   const client = await connectToDatabase();
 
@@ -25,17 +25,15 @@ exports.handler = middy(async (event, context, callback) => {
   			FROM
 	  			projects_table AS p
   			LEFT JOIN
-	 	 		usecases_table AS u ON p.id = u.project_id
-			WHERE
-				p.org_id = $1`;
+	 	 		usecases_table AS u ON p.id = u.project_id`;
 
   const queryParams = [];
-  queryParams.push(org_id);
+  // queryParams.push(org_id);
   
   if (projectId !== null) {
     query += `
-			AND
-				p.id = $2`;
+			WHERE
+				p.id = $1`;
     queryParams.push(projectId);
   }
   query += `

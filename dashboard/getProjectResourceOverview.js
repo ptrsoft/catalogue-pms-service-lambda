@@ -19,7 +19,7 @@ const statusSchema = z
 
 exports.handler = middy(async (event, context) => {
   // context.callbackWaitsForEmptyEventLoop = false
-  const org_id = event.user["custom:org_id"];
+  // const org_id = event.user["custom:org_id"];
 
   const status = event.queryStringParameters?.status ?? null;
 
@@ -29,15 +29,13 @@ exports.handler = middy(async (event, context) => {
                 p.id AS project_id,
                 p.project->>'name' AS project_name,
                 (p.project->'team'->'roles') as team
-            FROM projects_table AS p
-            WHERE
-                p.org_id = $1`;
+            FROM projects_table AS p`;
   let queryParams = [];
-  queryParams.push(org_id);
+  // queryParams.push(org_id);
   if (status != null) {
     query += `
-                AND 
-                    (p.project->>'status' = $2)`;
+                WHERE
+                    (p.project->>'status' = $1)`;
     console.log("query", query);
     queryParams.push(status);
     console.log("queryParams", queryParams);
