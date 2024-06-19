@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { connectToDatabase } = require("../db/dbConnector");
 const { SFNClient, CreateStateMachineCommand } = require("@aws-sdk/client-sfn");
 const {
@@ -17,7 +18,10 @@ const bodySchema = z.object({
 			message: "name should not contain `-`",
 		})
 		.min(3),
-	created_by_id: z.string().uuid({ message: "Invalid resource id" }),
+	created_by_id: z
+		.string()
+		.uuid({ message: "Invalid resource id" })
+		.optional(),
 	project_id: z.string().uuid({ message: "Invalid project id" }),
 	stages: z.array(
 		z.object({
@@ -94,7 +98,7 @@ exports.handler = middy(async (event, context) => {
 	const input = {
 		name: workflowName,
 		definition: JSON.stringify(newStateMachine),
-		roleArn: "arn:aws:iam::657907747545:role/backendstepfunc-Role",
+		roleArn: process.env.LAMBDA_ROLE,
 	};
 	const command = new CreateStateMachineCommand(input);
 	const commandResponse = await sfnClient.send(command);
