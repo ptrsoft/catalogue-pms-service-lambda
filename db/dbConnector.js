@@ -6,7 +6,7 @@ async function connectToDatabase() {
 		const client = new Client({
 			host: process.env.HOST,
 			port: process.env.PORT,
-			database: "workflow",
+			database: process.env.DATABASE,
 			user: process.env.USER,
 			password: process.env.PASSOWRD,
 		});
@@ -20,3 +20,8 @@ async function connectToDatabase() {
 module.exports = {
 	connectToDatabase,
 };
+
+(async () => {
+	const c  = await connectToDatabase()
+	console.log(c);
+})()

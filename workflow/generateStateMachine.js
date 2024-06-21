@@ -14,7 +14,7 @@ const generateStateMachine2 = (stages) => {
  
         const stage = {
             Type: "Task",
-            Resource: "arn:aws:lambda:us-east-1:657907747545:function:workflow-process-lambda:$LATEST",
+            Resource: "arn:aws:lambda:us-east-1:654654554404:function:workflow-process-lambda:$LATEST",
             Parameters: {
                 [`payload.$`]: "$",
                 [`stateName.$`]: "$$.State.Name",
@@ -71,7 +71,7 @@ const generateStateMachine2 = (stages) => {
  
         newStepFunction.States[currentStageName + "-complete"] = {
             Type: "Task",
-            Resource: "arn:aws:lambda:us-east-1:657907747545:function:workflow-complete-stage",
+            Resource: "arn:aws:lambda:us-east-1:654654554404:function:workflow-complete-stage",
             ResultPath:"$",
             Next: nextStageName,
         };
@@ -87,7 +87,7 @@ const generateStateMachine2 = (stages) => {
  
     newStepFunction.States["end"] = {
         Type: "Task",
-        Resource: "arn:aws:lambda:us-east-1:657907747545:function:workflow-complete-usecase",
+        Resource: "arn:aws:lambda:us-east-1:654654554404:function:workflow-complete-usecase",
         End: true,
     };
  
@@ -109,7 +109,7 @@ const generateStateMachine1 = (stages) => {
             },
             FinalStage: {
                 Type: "Task",
-                Resource: "arn:aws:lambda:us-east-1:657907747545:function:workflow-complete-usecase",
+                Resource: "arn:aws:lambda:us-east-1:654654554404:function:workflow-complete-usecase",
                 End: true,
             },
         },
@@ -124,7 +124,7 @@ const generateStateMachine1 = (stages) => {
         };
         stage.States[currentStageName] = {
             Type: "Task",
-            Resource: "arn:aws:lambda:us-east-1:657907747545:function:workflow-process-lambda:$LATEST",
+            Resource: "arn:aws:lambda:us-east-1:654654554404:function:workflow-process-lambda:$LATEST",
             Parameters: {
                 [`payload.$`]: "$",
                 [`stateName.$`]: "$$.State.Name",
@@ -178,7 +178,7 @@ const generateStateMachine1 = (stages) => {
  
         stage.States[`complete-${currentStageName}`] = {
             Type: "Task",
-            Resource: "arn:aws:lambda:us-east-1:657907747545:function:workflow-complete-stage",
+            Resource: "arn:aws:lambda:us-east-1:654654554404:function:workflow-complete-stage",
             ResultPath: "$",
             End: true
         };
