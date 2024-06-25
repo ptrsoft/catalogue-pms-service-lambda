@@ -4,9 +4,9 @@ exports.handler = async (event, context, callback) => {
 	console.log("event :", event)
 	console.log("enfgv :", process.env)
 	const client = new Client({
-		host: "213.210.36.2",
+		host: "host",
 		user: "postgres",
-		port: 32193,
+		port: 5432,
 		password: "postgres",
 		database: "postgres",
 	});

@@ -5,9 +5,9 @@ exports.handler = async (event) => {
 //   const  usecase_id = id;
     const { flag, project_id, usecase_id ,stateName} = event;
     const client = new Client({
-        host: "213.210.36.2",
+        host: "",
 		user: "postgres",
-		port: 32193,
+		port: 5432,
 		password: "postgres",
 		database: "postgres",
     });
