@@ -1,0 +1,35 @@
+workflow-complete-stage:
+    handler: stepFunctionLambdas/workflow-complete-stage.handler
+    role: ${env:LAMBDA_ROLE}
+    events:
+        - http:
+              path: /workflow-complete-stage
+              method: put
+              cors: true
+
+workflow-complete-usecase:
+    handler: stepFunctionLambdas/workflow-complete-usecase.handler
+    role: ${env:LAMBDA_ROLE}
+    events:
+        - http:
+              path: /workflow-complete-usecase
+              method: put
+              cors: true
+
+workflow-parallel-task-lambda:
+    handler: stepFunctionLambdas/workflow-parallel-task-lambda.handler
+    role: ${env:LAMBDA_ROLE}
+    events:
+        - http:
+              path: /workflow-parallel-task-lambda
+              method: post
+              cors: true
+
+workflow-process-lambda:
+    handler: stepFunctionLambdas/workflow-process-lambda.handler
+    role: ${env:LAMBDA_ROLE}
+    events:
+        - http:
+              path: /workflow-process-lambda
+              method: post
+              cors: true
