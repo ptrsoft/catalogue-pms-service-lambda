@@ -14,14 +14,10 @@ async function connectToDatabase() {
 		return client;
 	} catch (error) {
 		console.log("database :" + error.message);
+		return error
 	}
 }
 
 module.exports = {
 	connectToDatabase,
 };
-
-(async () => {
-	const c  = await connectToDatabase()
-	console.log(c);
-})()

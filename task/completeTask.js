@@ -31,7 +31,6 @@ exports.handler = middy(async (event) => {
     await client.query("BEGIN")
     try {
         const tokenResult = await client.query(getTokenQuery, [task_id])
-        console.log("tokenResult", tokenResult)
         const { token, usecase_id } = tokenResult.rows[0]
         const stepFunctionClient = new SFNClient({ region: "us-east-1" })
         const input = {
@@ -40,10 +39,8 @@ exports.handler = middy(async (event) => {
         }
         const command = new SendTaskSuccessCommand(input)
         const updateResult = await client.query(updateQuery, [task_id])
-        console.log("updateResult", updateResult)
         if (updateResult.rowCount > 0) {
             const respone = await stepFunctionClient.send(command)
-            console.log("respone", respone)
         }
         await client.query("COMMIT")
         return {

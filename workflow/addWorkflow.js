@@ -73,7 +73,6 @@ exports.handler = middy(async (event, context) => {
 	const sfnClient = new SFNClient({ region: "us-east-1" });
 	const newStateMachine = generateStateMachine2(stages);
 	const client = await connectToDatabase();
-	console.log("HERE");
 	const projectQueryPromise = client.query(projectQuery, [project_id]);
 	const workflowQueryPromise = client.query(workflowQuery, [name]);
 
@@ -94,7 +93,6 @@ exports.handler = middy(async (event, context) => {
 	}
 	const random = uuid().split("-")[4];
 	const workflowName = random + "@" + name.replace(/ /g, "_");
-	console.log(workflowName);
 	const input = {
 		name: workflowName,
 		definition: JSON.stringify(newStateMachine),
@@ -102,7 +100,6 @@ exports.handler = middy(async (event, context) => {
 	};
 	const command = new CreateStateMachineCommand(input);
 	const commandResponse = await sfnClient.send(command);
-	console.log(JSON.stringify("commandResponse", commandResponse));
 	metaData.created_time = new Date().toISOString();
 	const result = await client.query(insertQuery, [
 		workflowName,
@@ -112,7 +109,6 @@ exports.handler = middy(async (event, context) => {
 		created_by_id,
 	]);
 	if (commandResponse.$metadata.httpStatusCode != 200) {
-		console.log(JSON.stringify(commandResponse));
 	}
 	await client.end();
 	return {

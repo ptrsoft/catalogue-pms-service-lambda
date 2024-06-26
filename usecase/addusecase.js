@@ -94,7 +94,6 @@ exports.handler = middy(async (event, context) => {
 	if (response.$metadata.httpStatusCode == 200) {
 		const executionArn = response.executionArn;
 		const creationDate = response.startDate;
-		console.log("name ", stages[0].name);
 		const usecase = {
 			name: newUsecaseName,
 			creation_date: creationDate,
@@ -122,14 +121,13 @@ exports.handler = middy(async (event, context) => {
 			usecase,
 			assigned_to_id,
 		]);
-		console.log(result.rows);
 		return {
 			statusCode: 201,
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 			},
 			body: JSON.stringify({
-				...result.rows,
+				...result.rows[0],
 				usecase_name: result.rows[0].usecase.name
 					.split("@")[1]
 					.replace(/_/g, " "),
