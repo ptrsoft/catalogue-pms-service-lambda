@@ -1,10 +1,10 @@
 import { SSTConfig } from "sst";
-import { API } from "./stacks/MyStack";
+import { API } from "./stacks/ApiStack";
 
 export default {
   config(_input) {
     return {
-      name: "my-sst-app",
+      name: "pms",
       region: "us-east-1",
     };
   },
