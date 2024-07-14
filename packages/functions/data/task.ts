@@ -36,7 +36,7 @@ export const Tasks = new Entity(
 			assigneeId: {
 				type: "string",
 			},
-			taskName: {
+			name: {
 				type: "string",
 				required: true,
 			},
@@ -128,20 +128,73 @@ export const Tasks = new Entity(
 
 //create add task function using create method
 export const addTask = async (task: any) => {
-	const result = await Tasks.create({
-		...task,
-	}).go();
-	return result.data;
+	try {
+		const result = await Tasks.create({
+			...task,
+		}).go();
+		return result.data;
+	} catch (err) {
+		console.log(err.message);
+	}
 };
 
 export const updateTaskAssignee = async (
 	taskId: string,
 	assigneeId: string
 ) => {
-	return await Tasks.update({ taskId })
-		.set({
-			assigneeId,
-			taskAssignedDate: new Date().toISOString(),
-		})
-		.go();
+	try {
+		return await Tasks.update({ taskId })
+			.set({
+				assigneeId,
+				taskAssignedDate: new Date().toISOString(),
+			})
+			.go();
+	} catch (err) {
+		console.log(err.message);
+	}
+};
+
+//write func to get all templates from the db without any filters
+export const getTasks = async () => {
+	try {
+		const allItems = await Tasks.find({}).go();
+		return allItems.data;
+	} catch (err) {
+		console.log(err.message);
+	}
+};
+
+export const getTasksByUsecaseId = async (usecaseId: string) => {
+	try {
+		const allItems = await Tasks.query
+			.byUsecase({
+				usecaseId: usecaseId,
+			})
+			.go();
+		return allItems.data;
+	} catch (err) {
+		console.log(err.message);
+	}
+};
+
+export const getTask = async (taskId: string) => {
+	try {
+		const res = await Tasks.get({
+			taskId: taskId,
+		}).go();
+		return res.data;
+	} catch (err) {
+		console.log(err.message);
+	}
+};
+
+export const updateTaskStatus = async (taskId: string, status: string) => {
+	try {
+		const res = await Tasks.update({ taskId: taskId })
+			.set({ status: status })
+			.go();
+		return res.data;
+	} catch (err) {
+		console.log(err.message);
+	}
 };

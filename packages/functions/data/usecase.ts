@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { Table } from "sst/node/table";
 import { client } from "./dynamo";
 import { UsecaseResponse } from "../types/usecase";
+import { stat } from "fs";
 
 export const Usecases = new Entity(
 	{
@@ -137,7 +138,6 @@ export const getUsecaseByNameInWorkflow = async (
 		const res = await Usecases.query
 			.byName({ name, projectId: projectId, workflowId: workflowId })
 			.go();
-		console.log(" exists :", res.data);
 		return res.data.map((item: any) => ({
 			usecaseId: item.usecaseId,
 			arn: item.arn,
@@ -149,7 +149,6 @@ export const getUsecaseByNameInWorkflow = async (
 			endDate: item?.endDate,
 		})) as UsecaseResponse[];
 	} catch (err) {
-		console.log(JSON.stringify(err.message));
 		throw err;
 	}
 };
@@ -173,11 +172,34 @@ export const addUsecase = async (usecase: any) => {
 		arn: usecase.arn,
 		currentStage: usecase.currentStage,
 		projectId: usecase.projectId,
-		// stages: usecase.stages,
+		stages: usecase.stages,
 		startDate: usecase.startDate,
 		workflowId: usecase.workflowId,
 		description: usecase.description,
 		endDate: usecase.endDate,
 	}).go();
 	return res.data;
+};
+
+export const updateUsecaseStage = async (usecaseId: string, stages: any) => {
+	const res = await Usecases.update({
+		usecaseId: usecaseId,
+	})
+		.set({
+			stages: stages,
+		})
+		.go();
+};
+
+export const updateUsecaseStatus = async (
+	usecaseId: string,
+	status: string
+) => {
+	const res = await Usecases.update({
+		usecaseId: usecaseId,
+	})
+		.set({
+			status: status,
+		})
+		.go();
 };

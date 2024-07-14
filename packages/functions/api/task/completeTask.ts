@@ -2,56 +2,53 @@ import { SFNClient, SendTaskSuccessCommand } from "@aws-sdk/client-sfn";
 import middy from "@middy/core";
 import { pathParamsValidator } from "../util/pathParamsValidator";
 import { errorHandler } from "../util/errorHandler";
-import { bodyValidator } from "../util/bodyValidator";
 import { UUIDSchema } from "../../types/common";
+import { getTask, updateTaskStatus } from "../../data/task";
+import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
 
-const updateQuery = `
-    UPDATE tasks_table
-    SET task = jsonb_set(
-            task,
-            '{status}',
-            '"completed"'
-        )
-    WHERE id = $1`;
+const stepFunctionClient = new SFNClient({ region: "us-east-1" });
 
-const getTokenQuery = `
-    SELECT
-        token, usecase_id, assignee_id
-    FROM
-        tasks_table
-    WHERE
-        id = $1::uuid`;
+type UUIDReq = {
+	userId: string;
+};
 
-exports.handler = middy(async (event) => {
-	const task_id = event.pathParameters?.taskId ?? null;
-	const { user_id } = JSON.parse(event.body);
-	const client = await connectToDatabase();
-	await client.query("BEGIN");
-	try {
-		const tokenResult = await client.query(getTokenQuery, [task_id]);
-		const { token, usecase_id, assignee_id } = tokenResult.rows[0];
-		if (assignee_id !== user_id) {
+export const handler: APIGatewayProxyHandler = middy(
+	async (event: APIGatewayProxyEvent) => {
+		const taskId = event.pathParameters?.id ?? null;
+		if (!taskId) {
 			return {
-				statusCode: 403,
+				statusCode: 400,
 				headers: {
 					"Access-Control-Allow-Origin": "*",
 				},
 				body: JSON.stringify({
-					message: "unauthorized request",
+					message: "invalid task",
 				}),
 			};
 		}
-		const stepFunctionClient = new SFNClient({ region: "us-east-1" });
+		// const { userId } = JSON.parse(event.body || "{}") as UUIDReq;
+
+		const task = await getTask(taskId);
+		// if (task?.assigneeId !== userId) {
+		// 	return {
+		// 		statusCode: 403,
+		// 		headers: {
+		// 			"Access-Control-Allow-Origin": "*",
+		// 		},
+		// 		body: JSON.stringify({
+		// 			message: "unauthorized request",
+		// 		}),
+		// 	};
+		// }
 		const input = {
-			output: JSON.stringify(usecase_id),
-			taskToken: token,
+			output: JSON.stringify(task?.usecaseId),
+			taskToken: task?.token,
 		};
 		const command = new SendTaskSuccessCommand(input);
-		const updateResult = await client.query(updateQuery, [task_id]);
-		if (updateResult.rowCount > 0) {
-			const respone = await stepFunctionClient.send(command);
+		const updateResult = await updateTaskStatus(taskId, "completed");
+		if (updateResult?.taskId == taskId) {
+			await stepFunctionClient.send(command);
 		}
-		await client.query("COMMIT");
 		return {
 			statusCode: 200,
 			headers: {
@@ -61,22 +58,7 @@ exports.handler = middy(async (event) => {
 				message: "task completed",
 			}),
 		};
-	} catch (error) {
-		await client.query("ROLLBACK");
-		return {
-			statusCode: 500,
-			headers: {
-				"Access-Control-Allow-Origin": "*",
-			},
-			body: JSON.stringify({
-				message: error.message,
-				error: error,
-			}),
-		};
-	} finally {
-		await client.end();
 	}
-})
-	.use(pathParamsValidator(idSchema))
-	.use(bodyValidator(user_id))
+)
+	.use(pathParamsValidator(UUIDSchema))
 	.use(errorHandler());

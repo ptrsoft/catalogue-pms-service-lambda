@@ -12,7 +12,6 @@ async function seedData() {
 				name: sf.name,
 				arn: sf.arn,
 			}).go();
-			console.log(`Added: ${JSON.stringify(res.data)}`);
 		} else {
 			console.log(`Skipped existing: ${sf.name}`);
 		}

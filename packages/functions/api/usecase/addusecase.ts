@@ -1,7 +1,12 @@
 import middy from "@middy/core";
 import { errorHandler } from "../util/errorHandler";
 import { bodyValidator } from "../util/bodyValidator";
-import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
+import {
+	SFNClient,
+	StartExecutionCommand,
+	DescribeStateMachineCommand,
+} from "@aws-sdk/client-sfn";
+
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
 import {
 	NewUsecaseRequest,
@@ -9,6 +14,7 @@ import {
 } from "../../types/usecase";
 import { addUsecase, getUsecaseByNameInWorkflow } from "../../data/usecase";
 import { getWorkflow } from "../../data/workflow";
+import { workerData } from "worker_threads";
 
 const stepFunctionClient = new SFNClient({ region: "us-east-1" });
 
@@ -52,7 +58,15 @@ export const handler: APIGatewayProxyHandler = middy(
 				}),
 			};
 		}
+
 		const workflowData = await getWorkflow(workflowId);
+		const stages: any = [];
+		workflowData!.stages!.forEach((stage) => {
+			stages.push({
+				stage: stage,
+				status: "inprogress",
+			});
+		});
 		input.stateMachineArn = workflowData?.arn as string;
 		// const stages = workflowData?.stages as any;
 		const command = new StartExecutionCommand(input);
@@ -62,9 +76,9 @@ export const handler: APIGatewayProxyHandler = middy(
 				usecaseId: usecaseId,
 				name: usecaseName,
 				arn: workflowData?.arn as string,
-				// currentStage: stages[0].name,
+				currentStage: workflowData?.stages[0],
 				projectId: projectId,
-				// stages: generateStages(stages),
+				stages: stages,
 				startDate: startDate,
 				workflowId: workflowId,
 				description: description,

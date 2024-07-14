@@ -9,28 +9,29 @@ import { getUsecase, getUsecases } from "../../data/usecase";
 
 export const handler: APIGatewayProxyHandler = middy(
 	async (event: APIGatewayProxyEvent) => {
-		// const { projectId, templateId } = JSON.parse(event.body || "{}");
-		// if (!projectId) {
-		// 	return {
-		// 		statusCode: 400,
-		// 		headers: {
-		// 			"Access-Control-Allow-Origin": "*",
-		// 		},
-		// 		body: JSON.stringify({
-		// 			message: "projectId is required",
-		// 		}),
-		// 	};
-		// }
+		const usecaseId = event.pathParameters?.id ?? null;
 
-		const usecases = await getUsecases();
+		if (!usecaseId) {
+			return {
+				statusCode: 400,
+				headers: {
+					"Access-Control-Allow-Origin": "*",
+				},
+				body: JSON.stringify({
+					message: "usecaseId is required",
+				}),
+			};
+		}
+
+		const usecase = await getUsecase(usecaseId);
 		return {
 			statusCode: 200,
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 			},
-			body: JSON.stringify(usecases),
+			body: JSON.stringify(usecase),
 		};
 	}
 )
-	// .use(pathParamsValidator(UUIDSchema))
+	.use(pathParamsValidator(UUIDSchema))
 	.use(errorHandler());

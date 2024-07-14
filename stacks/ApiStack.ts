@@ -11,34 +11,40 @@ export function API({ stack }: StackContext) {
 			sk: "string",
 			gsi1pk: "string",
 			gsi1sk: "string",
+			gsi2pk: "string",
+			gsi2sk: "string",
 		},
 		primaryIndex: { partitionKey: "pk", sortKey: "sk" },
 		globalIndexes: {
 			gsi1: { partitionKey: "gsi1pk", sortKey: "gsi1sk" },
+			gsi2: { partitionKey: "gsi2pk", sortKey: "gsi2sk" },
 		},
 		timeToLiveAttribute: "expiresAt",
 	});
 
 	const tables = [pmsTable];
 
-	const processLambda = new Function(stack, "ProcessLambda", {
+	const processLambda = new Function(stack, "WorkflowProcessLambda", {
 		handler:
-			"../packages/functions/api/stepFunctionLambda/workflow-process-lambda.handler",
+			"packages/functions/stepFunctionLambda/workflow-process-lambda.handler",
 	});
 
 	const parallelTaskLambda = new Function(stack, "ParallelTaskLambda", {
 		handler:
-			"../packages/functions/api/stepFunctionLambda/workflow-parallel-task-lambda.handler",
+			"packages/functions/stepFunctionLambda/workflow-parallel-task-lambda.handler",
+		bind: tables,
 	});
 
 	const completeStageLambda = new Function(stack, "CompleteStage", {
 		handler:
-			"../packages/functions/api/stepFunctionLambda/workflow-complete-stage.handler",
+			"packages/functions/stepFunctionLambda/workflow-complete-stage.handler",
+		bind: tables,
 	});
 
 	const completeUsecaseLambda = new Function(stack, "CompleteUsecase", {
 		handler:
-			"../packages/functions/api/stepFunctionLambda/workflow-complete-usecase.handler",
+			"packages/functions/stepFunctionLambda/workflow-complete-usecase.handler",
+		bind: tables,
 	});
 
 	// Helper function to create a parallel task
@@ -62,6 +68,12 @@ export function API({ stack }: StackContext) {
 			resultPath: "$",
 			payloadResponseOnly: true,
 			retryOnServiceExceptions: true,
+			payload: sfn.TaskInput.fromObject({
+				// Include the entire input payload
+				payload: sfn.JsonPath.entirePayload,
+				// Inject the state name
+				stateName: sfn.JsonPath.stringAt("$$.State.Name"),
+			}),
 		});
 	};
 
@@ -69,6 +81,8 @@ export function API({ stack }: StackContext) {
 	const createCompleteStageTask = (id: string) => {
 		return new tasks.LambdaInvoke(stack, id, {
 			lambdaFunction: completeStageLambda,
+			payloadResponseOnly: true,
+
 			resultPath: "$",
 		});
 	};
@@ -150,22 +164,22 @@ export function API({ stack }: StackContext) {
 
 	const sActualDevComplete = createCompleteStageTask("Actual Dev-complete");
 
-	const sCICDTEST = createProcessTask("CI/CD/TEST");
+	const sCICDTEST = createProcessTask("CI CD TEST");
 
-	const sCICDTESTTasks = new sfn.Parallel(stack, "CI/CD/TEST-tasks", {
+	const sCICDTESTTasks = new sfn.Parallel(stack, "CI CD TEST tasks", {
 		resultPath: "$.array",
 	});
 
 	sCICDTESTTasks.branch(
 		createParallelTask(
-			"Build, deploy, and test CI/CD pipeline using custom Tekton"
+			"Build, deploy, and test CI CD pipeline using custom Tekton"
 		)
 	);
 	sCICDTESTTasks.branch(
 		createParallelTask("Create Kubernetes Operator for the service")
 	);
 	sCICDTESTTasks.branch(
-		createParallelTask("Deploy in Test ENV via CI/CD pipeline")
+		createParallelTask("Deploy in Test ENV via CI CD pipeline")
 	);
 	sCICDTESTTasks.branch(
 		createParallelTask("Perform acceptance tests in Test ENV")
@@ -180,11 +194,11 @@ export function API({ stack }: StackContext) {
 	);
 	sCICDTESTTasks.branch(createParallelTask("Stage after review by lead"));
 
-	const sCICDTESTComplete = createCompleteStageTask("CI/CD/TEST-complete");
+	const sCICDTESTComplete = createCompleteStageTask("CI CD TEST complete");
 
-	const sStageRelease = createProcessTask("Stage/Release");
+	const sStageRelease = createProcessTask("Stage Release");
 
-	const sStageReleaseTasks = new sfn.Parallel(stack, "Stage/Release-tasks", {
+	const sStageReleaseTasks = new sfn.Parallel(stack, "Stage Release tasks", {
 		resultPath: "$.array",
 	});
 
@@ -200,14 +214,14 @@ export function API({ stack }: StackContext) {
 	);
 
 	const sStageReleaseComplete = createCompleteStageTask(
-		"Stage/Release-complete"
+		"Stage Release-complete"
 	);
 
-	const sPublishOperate = createProcessTask("Publish/Operate");
+	const sPublishOperate = createProcessTask("Publish Operate");
 
 	const sPublishOperateTasks = new sfn.Parallel(
 		stack,
-		"Publish/Operate-tasks",
+		"Publish Operate tasks",
 		{
 			resultPath: "$.array",
 		}
@@ -223,7 +237,7 @@ export function API({ stack }: StackContext) {
 	);
 
 	const sPublishOperateComplete = createCompleteStageTask(
-		"Publish/Operate-complete"
+		"Publish Operate-complete"
 	);
 
 	const sEnd = new tasks.LambdaInvoke(stack, "end", {
@@ -287,10 +301,16 @@ export function API({ stack }: StackContext) {
 				function: {
 					handler:
 						"packages/functions/api/workflow/addWorkflowToProject.handler",
+					permissions: ["states:DescribeStateMachine"],
 				},
 			},
-			"GET /template":
-				"packages/functions/api/workflow/getTemplates.handler",
+			"GET /template": {
+				function: {
+					handler:
+						"packages/functions/api/workflow/getTemplates.handler",
+					permissions: ["states:DescribeStateMachine"],
+				},
+			},
 			"DELETE /template/{id}":
 				"packages/functions/api/workflow/deleteTemplate.handler",
 
@@ -298,15 +318,23 @@ export function API({ stack }: StackContext) {
 				function: {
 					handler:
 						"packages/functions/api/usecase/addusecase.handler",
-					permissions: ["states:StartExecution"],
+					permissions: [
+						"states:StartExecution",
+						"states:DescribeStateMachine",
+					],
 				},
 			},
-			"GET /usecase":
+			"GET /usecase/{id}":
 				"packages/functions/api/usecase/getusecase.handler",
 			"POST /resource":
 				"packages/functions/api/resource/addResource.handler",
-			"PUT /task/{id}/complete":
-				"packages/functions/api/task/completeTask.handler",
+			"PUT /task/{id}/complete": {
+				function: {
+					handler: "packages/functions/api/task/completeTask.handler",
+					permissions: ["states:SendTaskSuccess"],
+				},
+			},
+			"PUT /task": "packages/functions/api/task/getTasks.handler",
 		},
 	});
 

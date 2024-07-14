@@ -36,45 +36,4 @@ export const handler = async (event, context, callback) => {
 			}),
 		};
 	}
-	// } else if (event.payload.flag == "Update") {
-	// 	console.log("update");
-	// 	const {
-	// 		SFNClient,
-	// 		SendTaskSuccessCommand,
-	// 	} = require("@aws-sdk/client-sfn");
-	// 	const sfnClient = new SFNClient({ region: "us-east-1" });
-	// 	try {
-	// 		const matchingTask = event.payload.taskArray.find(
-	// 			(task) => task.task_name === event.taskName
-	// 		);
-	// 		if (matchingTask && matchingTask.status === "completed") {
-	// 			const taskToken = event.token;
-	// 			const sendTaskSuccessCommand = new SendTaskSuccessCommand({
-	// 				output: "1",
-	// 				taskToken: taskToken,
-	// 			});
-	// 			const successResponse = await sfnClient.send(
-	// 				sendTaskSuccessCommand
-	// 			);
-	// 			return {
-	// 				statusCode: 200,
-	// 				Payload: JSON.stringify({
-	// 					response: successResponse,
-	// 					message: "Task succeeded successfully",
-	// 				}),
-	// 			};
-	// 		}
-	// 	} catch (e) {
-	// 		return {
-	// 			statusCode: 500,
-	// 			headers: {
-	// 				"Access-Control-Allow-Origin": "*",
-	// 			},
-	// 			Payload: JSON.stringify({
-	// 				error: e,
-	// 				errorMessage: e.message,
-	// 			}),
-	// 		};
-	// 	}
-	// }
 };

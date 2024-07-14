@@ -2,6 +2,7 @@ import { Entity } from "electrodb";
 import crypto from "crypto";
 import { Table } from "sst/node/table";
 import { client } from "./dynamo";
+import { string } from "zod";
 
 export const Templates = new Entity(
 	{

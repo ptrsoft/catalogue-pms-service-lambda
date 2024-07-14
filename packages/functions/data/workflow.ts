@@ -33,7 +33,10 @@ export const Workflows = new Entity(
 				required: true,
 			},
 			stages: {
-				type: "any",
+				type: "list",
+				items: {
+					type: "string",
+				},
 			},
 			projectId: {
 				type: "string",
@@ -118,13 +121,15 @@ export const getWorkflowByName = async (
 export const addWorkflow = async (
 	name: string,
 	arn: string,
-	projectId: string
+	projectId: string,
+	stages: string[]
 ) => {
 	try {
 		const res = await Workflows.create({
 			name: name,
 			arn: arn,
 			projectId: projectId,
+			stages: stages,
 		}).go();
 		return res.data;
 	} catch (err) {
