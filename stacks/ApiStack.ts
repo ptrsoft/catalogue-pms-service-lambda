@@ -334,7 +334,26 @@ export function API({ stack }: StackContext) {
 					permissions: ["states:SendTaskSuccess"],
 				},
 			},
-			"PUT /task": "packages/functions/api/task/getTasks.handler",
+			"GET /user": "packages/functions/api/user/getAlluser.handler",
+			"GET /user/{projectId}":
+				"packages/functions/api/user/getUserbyProject.handler",
+			"GET /task/status/complete": {
+				function: {
+					handler: "packages/functions/api/user/getTaskbySatus.handler",
+					// permissions: ["states:SendTaskSuccess"],
+				},
+			},
+			// "GET /user": "packages/functions/api/user/getAlluser.handler",
+			"PUT /user/{userId}":
+				"packages/functions/api/user/crudApi/updateUser.handler",
+			"DELETE /user/{userId}":
+				"packages/functions/api/user/crudApi/deleteUser.handler",
+			"POST /addUser": {
+				function: {
+					handler: "packages/functions/api/user/crudApi/adduser.handler",
+					// permissions: ["states:SendTaskSuccess"],
+				},
+		},
 		},
 	});
 
