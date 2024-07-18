@@ -70,7 +70,7 @@ export const Tasks = new Entity(
 			status: {
 				type: "string",
 				required: true,
-				enum: ["inprogress", "completed"],
+				enum: ["inprogress", "completed", "pending"],
 				default: "inprogress",
 			},
 		},
@@ -118,6 +118,17 @@ export const Tasks = new Entity(
 					composite: ["taskId"],
 				},
 			},
+			// tasksByStatus: {
+			// 	index: 'gsi4',
+			// 	pk: {
+			// 	  field: 'gsi1pk',
+			// 	  composite: ['status']
+			// 	},
+			// 	sk: {
+			// 	  field: 'gsi4sk',
+			// 	  composite: ['taskId']
+			// 	}
+			//   },
 		},
 	},
 	{
@@ -193,6 +204,18 @@ export const updateTaskStatus = async (taskId: string, status: string) => {
 		const res = await Tasks.update({ taskId: taskId })
 			.set({ status: status })
 			.go();
+		return res.data;
+	} catch (err) {
+		console.log(err.message);
+	}
+};
+
+export const getTasksByStatus  = async ( status: string) => {
+	try {
+		const res = await Tasks.get({ 
+			status: status
+		 })
+		.go();
 		return res.data;
 	} catch (err) {
 		console.log(err.message);
