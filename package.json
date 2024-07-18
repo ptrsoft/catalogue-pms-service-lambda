@@ -20,8 +20,5 @@
   },
   "workspaces": [
     "packages/*"
-  ],
-  "dependencies": {
-    "@aws-sdk/client-sfn": "^3.614.0"
-  }
+  ]
 }

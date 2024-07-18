@@ -38,6 +38,9 @@ export const Project = new Entity(
 			endDate: {
 				type: "string",
 			},
+			teamId: {
+				type: "string",
+			},
 			createdAt: {
 				type: "string",
 				readOnly: true,
@@ -66,6 +69,17 @@ export const Project = new Entity(
 				sk: {
 					field: "gsi1sk",
 					composite: [],
+				},
+			},
+			byTeam: {
+				index: "gsi2",
+				pk: {
+					field: "gsi2pk",
+					composite: ["teamId"],
+				},
+				sk: {
+					field: "gsi2sk",
+					composite: ["projectId"],
 				},
 			},
 		},
@@ -112,4 +126,3 @@ export const getProjectByName = async (
 		throw err;
 	}
 };
-

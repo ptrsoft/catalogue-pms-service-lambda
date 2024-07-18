@@ -3,15 +3,15 @@ import crypto from "crypto";
 import { Table } from "sst/node/table";
 import { client } from "./dynamo";
 
-export const Users = new Entity(
+export const Role = new Entity(
 	{
 		model: {
-			entity: "user",
+			entity: "role",
 			version: "1",
 			service: "pms",
 		},
 		attributes: {
-			userId: {
+			roleId: {
 				type: "string",
 				readOnly: true,
 				required: true,
@@ -21,13 +21,8 @@ export const Users = new Entity(
 				type: "string",
 				required: true,
 			},
-			teamId: {
+			description: {
 				type: "string",
-				required: true,
-			},
-			role: {
-				type: "string",
-				required: true,
 			},
 			createdAt: {
 				type: "number",
@@ -46,34 +41,22 @@ export const Users = new Entity(
 			primary: {
 				pk: {
 					field: "pk",
-					composite: ["userId"],
+					composite: ["roleId"],
 				},
 				sk: {
 					field: "sk",
 					composite: [],
 				},
 			},
-			usersByRole: {
+			byName: {
 				index: "gsi1",
 				pk: {
 					field: "gsi1pk",
-					composite: ["roleId"],
+					composite: ["name"],
 				},
 				sk: {
 					field: "gsi1sk",
-					composite: ["userId"],
-				},
-			},
-			usersByTeam: {
-				index: "gsi2",
-				pk: {
-					field: "gsi2pk",
-					composite: ["teamId"],
-				},
-				sk: {
-					field: "gsi2sk",
-					// change 3: modified to use roleId instead of role
-					composite: ["roleId", "userId"],
+					composite: [],
 				},
 			},
 		},
