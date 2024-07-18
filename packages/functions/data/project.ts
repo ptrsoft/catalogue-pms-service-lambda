@@ -113,8 +113,3 @@ export const getProjectByName = async (
 	}
 };
 
-export const getUserByProject = async (projectId: string) => {
-	const res = await Project.get({
-		projectId: projectId,
-	}).go();
-	return res.data;
