@@ -1,25 +1,20 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
 import { errorHandler } from "../util/errorHandler";
 import middy from "@middy/core";
-import { getTasksByStatus  } from "../../data/task";
+import { getTasksByStatus } from "../../data/task";
 
 export const handler: APIGatewayProxyHandler = middy(
 	async (event: APIGatewayProxyEvent) => {
-		const status = event.queryStringParameters?.status;
+		let status = "pending";
+		const queryStatus = event.queryStringParameters?.status;
+		if (queryStatus === "completed") {
+			status = "completed";
+		  } else if (queryStatus && queryStatus !== "pending") {
+			console.log(`Invalid status provided: ${queryStatus}. Defaulting to 'pending'.`);
+		  }
+		  console.log(`Fetching tasks with status: ${status}`);
 
-		if (!status) {
-			return {
-				statusCode: 400,
-				headers: {
-					"Access-Control-Allow-Origin": "*",
-				},
-				body: JSON.stringify({
-					message: "usecaseId is required",
-				}),
-			};
-		}
-
-		const tasks = await getTasksByStatus(status);
+		const tasks = await getTasksByStatus(queryStatus);
 		return {
 			statusCode: 200,
 			headers: {
