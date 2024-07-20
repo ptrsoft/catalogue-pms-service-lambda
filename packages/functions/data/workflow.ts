@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { Table } from "sst/node/table";
 import { client } from "./dynamo";
 import { NewWorkflowRequest, WorkflowResponse } from "../types/workflow";
+import { getUsecase, usecaseCount } from "./usecase";
 
 export const Workflows = new Entity(
 	{
@@ -139,11 +140,37 @@ export const addWorkflow = async (
 };
 
 export const getWorkflow = async (workflowId: string) => {
-	try {
-		const res = await Workflows.get({ workflowId }).go();
-		return res.data;
-	} catch (err) {
-		console.error("Error adding workflow:", err);
-		throw err;
-	}
+	const res = await Workflows.get({ workflowId }).go();
+	return res.data;
+};
+
+export const getWorkflows = async (
+	projectId: string,
+	status: string = "inprogress",
+	cursor?: string
+) => {
+	const res = await Workflows.query
+		.byProject({ projectId: projectId })
+		.where((att, opp) => `${opp.eq(att.status, status)}`)
+		.go({
+			limit: 3,
+			cursor,
+		});
+	const workflowWithUsecasePer = await Promise.all(
+		res.data.map(async (workflow) => {
+			const total = await usecaseCount(workflow.workflowId);
+			const comp = await usecaseCount(workflow.workflowId, "completed");
+			return {
+				...workflow,
+
+				total: total,
+				completedPercentage: Math.floor(((comp / total) * 100) * 100) / 100
+			};
+		})
+	);
+
+	return {
+		data: workflowWithUsecasePer,
+		cursor: res.cursor,
+	};
 };

@@ -101,6 +101,7 @@ export const Usecases = new Entity(
 			},
 			byProject: {
 				index: "gsi2",
+				collection: "projects",
 				pk: {
 					field: "gsi2pk",
 					composite: ["projectId"],
@@ -202,4 +203,14 @@ export const updateUsecaseStatus = async (
 			status: status,
 		})
 		.go();
+};
+
+export const usecaseCount = async (workflowId: string, status?: string) => {
+	let query = Usecases.query.byWorkflow({ workflowId });
+	if (status) {
+		query.where((attr, op) => `${op.eq(attr.status, status)}`);
+	}
+	const res = await query.go();
+	console.log("<---->", res.data.length);
+	return res.data.length;
 };

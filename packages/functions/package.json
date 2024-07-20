@@ -10,6 +10,7 @@
 		"@aws-sdk/client-dynamodb": "^3.606.0",
 		"@aws-sdk/client-sfn": "^3.490.0",
 		"@aws-sdk/lib-dynamodb": "^3.606.0",
+		"@aws-sdk/s3-request-presigner": "^3.616.0",
 		"@middy/core": "^4.7.0",
 		"@middy/error-logger": "^4.7.0",
 		"electrodb": "^2.14.1",

@@ -2,8 +2,7 @@ import { Entity } from "electrodb";
 import crypto from "crypto";
 import { Table } from "sst/node/table";
 import { client } from "./dynamo";
-import { UserRequest,UserResponse } from "../types/user"
-import { UserUpdateRequest, UserResponse } from "../types/user"
+import { UserUpdateRequest, UserResponse, UserRequest } from "../types/user";
 
 export const Users = new Entity(
 	{
@@ -25,7 +24,6 @@ export const Users = new Entity(
 			},
 			teamId: {
 				type: "string",
-				required: true,
 			},
 			role: {
 				type: "string",
@@ -53,13 +51,13 @@ export const Users = new Entity(
 				sk: {
 					field: "sk",
 					composite: [],
-				  },			
+				},
 			},
 			usersByRole: {
 				index: "gsi1",
 				pk: {
 					field: "gsi1pk",
-					composite: ["roleId"],
+					composite: ["role"],
 				},
 				sk: {
 					field: "gsi1sk",
@@ -74,7 +72,7 @@ export const Users = new Entity(
 	}
 );
 
-export const addUser = async (users:UserRequest) => {
+export const addUser = async (users: UserRequest) => {
 	const res = await Users.create({
 		name: users.name,
 		role: users.role,
@@ -82,20 +80,24 @@ export const addUser = async (users:UserRequest) => {
 	return res.data;
 };
 
-export const updateUser = async (userUpdate: UserUpdateRequest) => {
-	const { userId, ...updateData } = userUpdate;
-	
+export const updateUser = async (
+	userId: string,
+	userUpdate: UserUpdateRequest
+) => {
 	const res = await Users.update({
 		userId: userId,
-		name: updateData.name,
-		// role: updateData.role
-	  })
-	  .set(updateData)
-	  .go();
+	})
+		.set(userUpdate)
+		.go();
 	return res.data;
-  };
+};
 
-export const getUser = async () => {
+export const getUser = async (userId: string) => {
+	const res = await Users.get({ userId }).go();
+	return res.data;
+};
+
+export const getUsers = async () => {
 	const allItems = await Users.find({}).go();
 	return allItems.data;
 };
@@ -107,14 +109,9 @@ export const getUser = async () => {
 // 	return res.data;
 // };
 
-export const deleteUser = async () => {
-	const { userId } = deleteUser;
-	
+export const deleteUser = async (userId: string) => {
 	const res = await Users.delete({
 		userId: userId,
-		// name: updateData.name,
-		// role: updateData.role
-	  })
-	  .go();
+	}).go();
 	return res.data;
-  };
+};
