@@ -1,24 +1,53 @@
-import middy from "@middy/core";
-import { errorHandler } from "../util/errorHandler";
-import { bodyValidator } from "../util/bodyValidator";
-import {
-	SFNClient,
-	StartExecutionCommand,
-	DescribeStateMachineCommand,
-} from "@aws-sdk/client-sfn";
-
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
+import { pathParamsValidator } from "../util/pathParamsValidator";
+import { errorHandler } from "../util/errorHandler";
+import { UUIDSchema } from "../../types/common";
+import middy from "@middy/core";
+import { getWorkflow } from "../../data/workflow";
+import {
+	addUsecase,
+	getUsecase,
+	getUsecaseByNameInWorkflow,
+} from "../../data/usecase";
 import {
 	NewUsecaseRequest,
 	NewUsecaseRequestSchema,
 } from "../../types/usecase";
-import { addUsecase, getUsecaseByNameInWorkflow } from "../../data/usecase";
-import { getWorkflow } from "../../data/workflow";
-import { workerData } from "worker_threads";
+import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
+import { bodyValidator } from "../util/bodyValidator";
 
 const stepFunctionClient = new SFNClient({ region: "us-east-1" });
 
-export const handler: APIGatewayProxyHandler = middy(
+export const getUsecaseById: APIGatewayProxyHandler = middy(
+	async (event: APIGatewayProxyEvent) => {
+		const usecaseId = event.pathParameters?.id ?? null;
+
+		if (!usecaseId) {
+			return {
+				statusCode: 400,
+				headers: {
+					"Access-Control-Allow-Origin": "*",
+				},
+				body: JSON.stringify({
+					message: "usecaseId is required",
+				}),
+			};
+		}
+
+		const usecase = await getUsecase(usecaseId);
+		return {
+			statusCode: 200,
+			headers: {
+				"Access-Control-Allow-Origin": "*",
+			},
+			body: JSON.stringify(usecase),
+		};
+	}
+)
+	.use(pathParamsValidator(UUIDSchema))
+	.use(errorHandler());
+
+export const addNewUsecase: APIGatewayProxyHandler = middy(
 	async (event: APIGatewayProxyEvent) => {
 		const {
 			projectId,
@@ -106,25 +135,3 @@ export const handler: APIGatewayProxyHandler = middy(
 )
 	.use(bodyValidator(NewUsecaseRequestSchema))
 	.use(errorHandler());
-
-const generateStages = (stages: any) => {
-	return stages.map((stage: any) => {
-		const stageName = stage.name;
-		const checklist = stage.checklist;
-		return {
-			[stageName]: {
-				assignee_id: "",
-				assigned_by_id: "",
-				updated_by_id: "",
-				description: "",
-				start_date: "",
-				end_date: "",
-				checklist: checklist.map((item: any, index: any) => ({
-					item_id: index + 1,
-					description: item,
-					checked: false,
-				})),
-			},
-		};
-	});
-};

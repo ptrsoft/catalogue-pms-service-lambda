@@ -32,11 +32,6 @@ export const Templates = new Entity(
 			image: {
 				type: "string",
 			},
-			all: {
-				// Add this attribute
-				type: "string",
-				default: "all",
-			},
 		},
 		indexes: {
 			primary: {
@@ -57,7 +52,7 @@ export const Templates = new Entity(
 				},
 				sk: {
 					field: "gsi1sk",
-					composite: ["all"],
+					composite: [],
 				},
 			},
 		},

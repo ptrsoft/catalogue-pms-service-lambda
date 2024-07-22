@@ -303,15 +303,6 @@ export function API({ stack }: StackContext) {
 		time: sfn.WaitTime.duration(Duration.seconds(1)),
 	});
 
-	// Define state machine
-	const stateMachine1 = new sfn.StateMachine(stack, "StateMachine", {
-		definition: sWait,
-	});
-
-	// const stepFunctionEnv = {
-	// 	STEP_FUNCTION_NAME: stateMachine.stateMachineName,
-	// 	STEP_FUNCTION_ARN: stateMachine.stateMachineArn,
-	// };
 	const api = new Api(stack, "api", {
 		defaults: {
 			function: {
@@ -335,7 +326,7 @@ export function API({ stack }: StackContext) {
 			"POST /workflow": {
 				function: {
 					handler:
-						"packages/functions/api/workflow/addWorkflowToProject.handler",
+						"packages/functions/api/workflow/workflow.addTemplate",
 					permissions: ["states:DescribeStateMachine"],
 				},
 			},
@@ -350,7 +341,7 @@ export function API({ stack }: StackContext) {
 			"POST /usecase": {
 				function: {
 					handler:
-						"packages/functions/api/usecase/addusecase.handler",
+						"packages/functions/api/usecase/usecase.addNewUsecase",
 					permissions: [
 						"states:StartExecution",
 						"states:DescribeStateMachine",
@@ -358,20 +349,17 @@ export function API({ stack }: StackContext) {
 				},
 			},
 			"GET /usecase/{id}":
-				"packages/functions/api/usecase/getusecase.handler",
+				"packages/functions/api/usecase/usecase.getUsecaseById",
 			"GET /usecase/{id}/task":
-				"packages/functions/api/task/getTasks.handler",
+				"packages/functions/api/task/task.getTasks",
 			"POST /resource":
 				"packages/functions/api/resource/addResource.handler",
 			"PUT /task/{id}/complete": {
 				function: {
-					handler: "packages/functions/api/task/completeTask.handler",
+					handler: "packages/functions/api/task/task.completeTask",
 					permissions: ["states:SendTaskSuccess"],
 				},
 			},
-			"GET /user": "packages/functions/api/user/getAlluser.handler",
-			"GET /user/{projectId}":
-				"packages/functions/api/user/getUserbyProject.handler",
 			"GET /task/status/complete": {
 				function: {
 					handler:
@@ -380,11 +368,10 @@ export function API({ stack }: StackContext) {
 				},
 			},
 			// "GET /user": "packages/functions/api/user/getAlluser.handler",
-			"PUT /user/{userId}":
-				"packages/functions/api/user/updateUser.handler",
-			"DELETE /user/{userId}":
-				"packages/functions/api/user/deleteUser.handler",
-			"POST /user": "packages/functions/api/user/adduser.handler",
+			"GET /user": "packages/functions/api/user/user.getAll",
+			"PUT /user/{id}": "packages/functions/api/user/user.update",
+			// "DELETE /user/{id}": "packages/functions/api/user/user.handler",
+			"POST /user": "packages/functions/api/user/user.post",
 			"GET /uploadUrl": {
 				function: {
 					handler:
@@ -405,10 +392,6 @@ export function API({ stack }: StackContext) {
 						{
 							name: stateMachine.stateMachineName,
 							arn: stateMachine.stateMachineArn,
-						},
-						{
-							name: stateMachine1.stateMachineName,
-							arn: stateMachine1.stateMachineArn,
 						},
 					]),
 				},
