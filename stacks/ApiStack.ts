@@ -1,4 +1,4 @@
-import { StackContext, Api, Table, Script } from "sst/constructs";
+import { StackContext, Api, Table, Script, Cognito } from "sst/constructs";
 import { StateMachine } from "aws-cdk-lib/aws-stepfunctions";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
@@ -6,7 +6,12 @@ import { Function } from "sst/constructs";
 import { Bucket } from "sst/constructs";
 import { Duration } from "aws-cdk-lib/core";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { Handler } from "aws-cdk-lib/aws-lambda";
+import {
+	StringAttribute,
+	NumberAttribute,
+	BooleanAttribute,
+	DateTimeAttribute,
+} from "aws-cdk-lib/aws-cognito";
 
 export function API({ stack }: StackContext) {
 	const pmsTable = new Table(stack, "pmsTable", {
@@ -30,6 +35,19 @@ export function API({ stack }: StackContext) {
 	});
 
 	const tables = [pmsTable];
+
+	// const cognito = new Cognito(stack, "Auth", {
+	// 	cdk: {
+	// 		userPool: {
+	// 			customAttributes: {
+	// 				userId: new StringAttribute({
+	// 					mutable: false,
+	// 				}),
+	// 				createdAt: new DateTimeAttribute(),
+	// 			},
+	// 		},
+	// 	},
+	// });
 
 	const pmsBucket = new Bucket(stack, "pmsBucket", {
 		cors: [
@@ -299,10 +317,6 @@ export function API({ stack }: StackContext) {
 		}
 	);
 
-	const sWait = new sfn.Wait(stack, "Wait", {
-		time: sfn.WaitTime.duration(Duration.seconds(1)),
-	});
-
 	const api = new Api(stack, "api", {
 		defaults: {
 			function: {
@@ -362,7 +376,14 @@ export function API({ stack }: StackContext) {
 			"GET /user": "packages/functions/api/user/user.getAll",
 			"PUT /user/{id}": "packages/functions/api/user/user.update",
 			// "DELETE /user/{id}": "packages/functions/api/user/user.handler",
-			"POST /user": "packages/functions/api/user/user.post",
+			"POST /user": {
+				function: {
+					handler: "packages/functions/api/user/user.post",
+					// environment: {
+					// 	COGNITO_CLIENT: cognito.userPoolClientId,
+					// },
+				},
+			},
 			"GET /uploadUrl": {
 				function: {
 					handler:
@@ -401,5 +422,6 @@ export function API({ stack }: StackContext) {
 		api,
 		pmsTable,
 		stateMachine,
+		// cognito,
 	};
 }

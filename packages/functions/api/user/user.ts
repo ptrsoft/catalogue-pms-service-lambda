@@ -10,24 +10,61 @@ import { addUser, getUsers, updateUser } from "../../data/user";
 import { UserRequest } from "../../types/user";
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
 import { getTasksByStatus } from "../../data/task";
+import {
+	CognitoIdentityProviderClient,
+	SignUpCommand,
+	AdminDeleteUserCommand,
+} from "@aws-sdk/client-cognito-identity-provider";
+
+const cognitoClient = new CognitoIdentityProviderClient({
+	region: "us-east-1",
+});
 
 export const post: APIGatewayProxyHandler = middy(
 	async (event: APIGatewayProxyEvent) => {
-		const { name, role } = JSON.parse(event.body || "{}") as UserRequest;
+		const { name, role, email, password } = JSON.parse(
+			event.body || "{}"
+		) as UserRequest;
 		const user: UserRequest = {
 			name,
 			role,
+			email,
+			password,
 		};
-		console.log(user);
+		// const org_id = uuid()
+		const userId = crypto.randomUUID();
 
-		const newUser = await addUser(user);
-		console.log(newUser);
+		const input = {
+			ClientId: process.env.COGNITO_CLIENT,
+			Username: email,
+			Password: password,
+			UserAttributes: [
+				// {
+				// 	Name: "custom:org_id",
+				// 	Value: org_id,
+				// },
+				{
+					Name: "custom:useId",
+					Value: userId,
+				},
+				{
+					Name: "custom:role",
+					Value: "admin",
+				},
+			],
+			// DesiredDeliveryMediums: "EMAIL",
+			// MessageAction: "RESEND",
+		};
+
+		const command = new SignUpCommand(input);
+		const signupResponse = await cognitoClient.send(command);
+		// const newUser = await addUser(user);
 		return {
 			statusCode: 200,
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 			},
-			body: JSON.stringify(newUser),
+			body: JSON.stringify(signupResponse),
 		};
 	}
 )
