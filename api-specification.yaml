@@ -1,0 +1,928 @@
+openapi: 3.0.0
+info:
+  title: API Documentation
+  version: 1.0.0
+  
+tags:
+  - name : project
+  - name : task
+  - name : team
+  - name : workflow
+  - name : usecase
+  - name : user
+  
+paths:
+  /project:
+    post:
+      tags:
+        - project
+      summary: Create a new project
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+            example:
+              name: project 4
+              description: new project 1
+              startDate: "2024-06-14"
+              endDate: "2024-06-24"
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectId:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  status:
+                    type: string
+                  startDate:
+                    type: string
+                    format: date
+                  endDate:
+                    type: string
+                    format: date
+                  teamId:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+              example:
+                projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                name: project 5
+                description: new project 1
+                status: pending
+                startDate: "2024-06-14"
+                endDate: "2024-06-24"
+                teamId: "9a088008-e3f4-47df-87cc-e9dfac6a2a1b"
+                createdAt: "2024-07-22T13:14:20.524Z"
+    get:
+      tags:
+        - project
+      summary: Get all projects
+      operationId: getAllProjects
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        projectId:
+                          type: string
+                        endDate:
+                          type: string
+                          format: date
+                        status:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        teamId:
+                          type: string
+                        name:
+                          type: string
+                        startDate:
+                          type: string
+                          format: date
+                        description:
+                          type: string
+                        usecaseCount:
+                          type: integer
+                        team:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              role:
+                                type: string
+                              userId:
+                                type: string
+                              updatedAt:
+                                type: integer
+                              createdAt:
+                                type: integer
+                              name:
+                                type: string
+                  cursor:
+                    type: string
+              example:
+                data:
+                  - projectId: "5fb82b8d-41af-4e8b-ba49-923d34809b64"
+                    endDate: "2024-06-24"
+                    status: pending
+                    createdAt: "2024-07-22T07:03:34.234Z"
+                    teamId: "1d3d25f2-92fb-4e0c-913c-d94198507b51"
+                    name: project 4
+                    startDate: "2024-06-14"
+                    description: new project 1
+                    usecaseCount: 0
+                    team: []
+                  - projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                    endDate: "2024-06-24"
+                    status: pending
+                    createdAt: "2024-07-22T13:14:20.524Z"
+                    teamId: "9a088008-e3f4-47df-87cc-e9dfac6a2a1b"
+                    name: project 5
+                    startDate: "2024-06-14"
+                    description: new project 1
+                    usecaseCount: 0
+                    team:
+                      - role: backend
+                        userId: "387d079f-8c11-45a3-8d21-1cb06f5504e4"
+                        updatedAt: 1721654979340
+                        createdAt: 1721654979337
+                        name: sohail
+                      - role: frontend
+                        userId: "23bb3f36-b2d5-42e1-ba6c-42a061b838ea"
+                        updatedAt: 1721655067857
+                        createdAt: 1721655067856
+                        name: ali
+                cursor: null
+
+  /project/{id}:
+    get:
+      tags:
+        - project
+      summary: Get project by ID
+      operationId: getProjectById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectId:
+                    type: string
+                  endDate:
+                    type: string
+                    format: date
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  teamId:
+                    type: string
+                  name:
+                    type: string
+                  startDate:
+                    type: string
+                    format: date
+                  description:
+                    type: string
+              example:
+                projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                endDate: "2024-06-24"
+                status: pending
+                createdAt: "2024-07-22T13:14:20.524Z"
+                teamId: "9a088008-e3f4-47df-87cc-e9dfac6a2a1b"
+                name: project 5
+                startDate: "2024-06-14"
+                description: new project 1
+
+  /project/{id}/team:
+    get:
+      tags:
+        - project
+      summary: Get project team by project ID
+      operationId: getProjectTeam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    projectId:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    teamId:
+                      type: string
+                    team:
+                      type: object
+                      properties:
+                        "UX Team":
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              role:
+                                type: string
+                              userId:
+                                type: string
+                              updatedAt:
+                                type: integer
+                              createdAt:
+                                type: integer
+                              name:
+                                type: string
+                        "UI Team":
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              role:
+                                type: string
+                              userId:
+                                type: string
+                              updatedAt:
+                                type: integer
+                              createdAt:
+                                type: integer
+                              name:
+                                type: string
+                        "API Team":
+                          type: array
+                          items: {}
+                        "DevOps":
+                          type: array
+                          items: {}
+                        "Testing":
+                          type: array
+                          items: {}
+                        "Marketing":
+                          type: array
+                          items: {}
+              example:
+                - projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                  createdAt: "2024-07-22T13:14:20.749Z"
+                  teamId: "9a088008-e3f4-47df-87cc-e9dfac6a2a1b"
+                  team:
+                    "UX Team":
+                      - role: backend
+                        userId: "387d079f-8c11-45a3-8d21-1cb06f5504e4"
+                        updatedAt: 1721654979340
+                        createdAt: 1721654979337
+                        name: sohail
+                    "UI Team":
+                      - role: frontend
+                        userId: "23bb3f36-b2d5-42e1-ba6c-42a061b838ea"
+                        updatedAt: 1721655067857
+                        createdAt: 1721655067856
+                        name: ali
+                    "API Team": []
+                    "DevOps": []
+                    "Testing": []
+                    "Marketing": []
+
+  /project/{id}/workflow:
+    get:
+      tags:
+        - project
+      summary: Get project workflows by project ID
+      operationId: getProjectWorkflows
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        projectId:
+                          type: string
+                        stages:
+                          type: array
+                          items:
+                            type: string
+                        status:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        name:
+                          type: string
+                        workflowId:
+                          type: string
+                        arn:
+                          type: string
+                        total:
+                          type: integer
+                        completedPercentage:
+                          type: number
+                  cursor:
+                    type: string
+              example:
+                data:
+                  - projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                    stages:
+                      - Requirement
+                      - Mock Dev
+                      - Actual Dev
+                      - CI CD TEST
+                      - Stage Release
+                      - Publish Operate
+                    status: inprogress
+                    createdAt: "2024-07-22T13:21:53.481Z"
+                    name: SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR
+                    workflowId: "2c81e430-d9e8-40cf-962f-d25824150465"
+                    arn: "arn:aws:states:us-east-1:654654554404:stateMachine:SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR"
+                    total: 0
+                    completedPercentage: null
+                cursor: null
+
+  /team/{id}:
+    put:
+      tags:
+        - team
+      summary: Update project team by team ID
+      operationId: updateProjectTeam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                "UX Team":
+                  type: array
+                  items:
+                    type: string
+                "UI Team":
+                  type: array
+                  items:
+                    type: string
+                "API Team":
+                  type: array
+                  items:
+                    type: string
+                "DevOps":
+                  type: array
+                  items:
+                    type: string
+                "Testing":
+                  type: array
+                  items:
+                    type: string
+                "Marketing":
+                  type: array
+                  items:
+                    type: string
+            example:
+              "UX Team":
+                - "387d079f-8c11-45a3-8d21-1cb06f5504e4"
+              "UI Team":
+                - "23bb3f36-b2d5-42e1-ba6c-42a061b838ea"
+              "API Team": []
+              "DevOps": []
+              "Testing": []
+              "Marketing": []
+
+      responses:
+        '200':
+          description: Project team updated
+  /workflow/{id}:
+    get:
+      tags:
+        - workflow
+      summary: Get workflow by ID
+      operationId: getWorkflowById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectId:
+                    type: string
+                  stages:
+                    type: array
+                    items:
+                      type: string
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  name:
+                    type: string
+                  workflowId:
+                    type: string
+                  arn:
+                    type: string
+              example:
+                projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                stages:
+                  - Requirement
+                  - Mock Dev
+                  - Actual Dev
+                  - CI CD TEST
+                  - Stage Release
+                  - Publish Operate
+                status: inprogress
+                createdAt: "2024-07-22T13:21:53.481Z"
+                name: SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR
+                workflowId: "2c81e430-d9e8-40cf-962f-d25824150465"
+                arn: "arn:aws:states:us-east-1:654654554404:stateMachine:SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR"
+
+
+  /workflow:
+    post:
+      tags:
+        - workflow
+      summary: Add a new workflow template
+      operationId: addTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                templateId:
+                  type: string
+            example:
+              projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+              templateId: "cecf6f5a-2b21-4066-861b-ac43758e4f80"
+
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflowId:
+                    type: string
+                  status:
+                    type: string
+                  name:
+                    type: string
+                  arn:
+                    type: string
+                  stages:
+                    type: array
+                    items:
+                      type: string
+                  projectId:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+              example:
+                workflowId: "2c81e430-d9e8-40cf-962f-d25824150465"
+                status: inprogress
+                name: SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR
+                arn: "arn:aws:states:us-east-1:654654554404:stateMachine:SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR"
+                stages:
+                  - Requirement
+                  - Mock Dev
+                  - Actual Dev
+                  - CI CD TEST
+                  - Stage Release
+                  - Publish Operate
+                projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                createdAt: "2024-07-22T13:21:53.481Z"
+
+  /template:
+    get:
+      tags:
+        - workflow
+      summary: Get all templates
+      operationId: getAllTemplates
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    templateId:
+                      type: string
+                    name:
+                      type: string
+                    arn:
+                      type: string
+              example:
+                - templateId: "de0ed195-2f9a-4e6e-b552-4c5cc2d06556"
+                  name: StateMachine2E01A3A5-4LEfP4QctWJJ
+                  arn: "arn:aws:states:us-east-1:654654554404:stateMachine:StateMachine2E01A3A5-4LEfP4QctWJJ"
+                - templateId: "7724b7d7-ae45-45cc-9fb1-ffd0428b3b3a"
+                  name: SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR
+                  arn: "arn:aws:states:us-east-1:654654554404:stateMachine:SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR"
+                - templateId: "cecf6f5a-2b21-4066-861b-ac43758e4f80"
+                  name: SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR
+                  arn: "arn:aws:states:us-east-1:654654554404:stateMachine:SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR"
+
+  # /template/{id}:
+  #   delete:
+  #     summary: Delete template by ID
+  #     operationId: delTemplate
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '200':
+  #         description: Template deleted
+  #     x-handler: packages/functions/api/workflow/template.delTemplate
+  /usecase:
+    post:
+      tags:
+        - usecase
+      summary: Add a new use case
+      operationId: addNewUsecase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                usecaseName:
+                  type: string
+                description:
+                  type: string
+                workflowId:
+                  type: string
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+            example:
+              projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+              usecaseName: "sohail 1"
+              description: "new description"
+              workflowId: "2c81e430-d9e8-40cf-962f-d25824150465"
+              startDate: "2024-06-14"
+              endDate: "2024-07-15"
+
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usecaseId:
+                    type: string
+                  arn:
+                    type: string
+                  name:
+                    type: string
+                  stages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stage:
+                          type: string
+                        status:
+                          type: string
+                  currentStage:
+                    type: string
+                  description:
+                    type: string
+                  projectId:
+                    type: string
+                  workflowId:
+                    type: string
+                  status:
+                    type: string
+                  startDate:
+                    type: string
+                    format: date
+                  endDate:
+                    type: string
+                    format: date
+                  createdAt:
+                    type: string
+                    format: date-time
+              example:
+                usecaseId: "d0fbf49e-a71f-4a73-a240-564f2df143c9"
+                arn: "arn:aws:states:us-east-1:654654554404:stateMachine:SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR"
+                name: "sohail 1"
+                stages:
+                  - stage: Requirement
+                    status: inprogress
+                  - stage: Mock Dev
+                    status: inprogress
+                  - stage: Actual Dev
+                    status: inprogress
+                  - stage: CI CD TEST
+                    status: inprogress
+                  - stage: Stage Release
+                    status: inprogress
+                  - stage: Publish Operate
+                    status: inprogress
+                currentStage: Requirement
+                description: "new description"
+                projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                workflowId: "2c81e430-d9e8-40cf-962f-d25824150465"
+                status: pending
+                startDate: "2024-06-14"
+                endDate: "2024-07-15"
+                createdAt: "2024-07-22T13:59:17.112Z"
+
+  /usecase/{id}:
+    get:
+      tags:
+        - usecase
+      summary: Get use case by ID
+      operationId: getUsecaseById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful response containing the requested resource.
+          content:
+            application/json:
+              example:
+                projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                currentStage: "Requirement"
+                endDate: "2024-07-15"
+                stages:
+                  - stage: "Requirement"
+                    status: "inprogress"
+                  - stage: "Mock Dev"
+                    status: "inprogress"
+                  - stage: "Actual Dev"
+                    status: "inprogress"
+                  - stage: "CI CD TEST"
+                    status: "inprogress"
+                  - stage: "Stage Release"
+                    status: "inprogress"
+                  - stage: "Publish Operate"
+                    status: "inprogress"
+                status: "pending"
+                createdAt: "2024-07-22T13:59:17.112Z"
+                name: "sohail 1"
+                workflowId: "2c81e430-d9e8-40cf-962f-d25824150465"
+                usecaseId: "d0fbf49e-a71f-4a73-a240-564f2df143c9"
+                startDate: "2024-06-14"
+                description: "new description"
+                arn: "arn:aws:states:us-east-1:654654554404:stateMachine:SoftwareDevelopmentWorkflow7228C241-LsCbJ8aCUBxR"
+
+  /usecase/{id}/task:
+    get:
+      tags:
+        - task
+      summary: Get tasks for a use case by use case ID
+      operationId: getTasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK. Successful response for retrieving a list of tasks related to a project.
+          content:
+            application/json:
+              example:
+                - projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                  stage: "Requirement"
+                  createdDate: "2024-07-22"
+                  taskId: "15e02aa6-dc6e-419b-a596-caf1529bc1ff"
+                  status: "inprogress"
+                  name: "Create Use Case Document"
+                  usecaseId: "d0fbf49e-a71f-4a73-a240-564f2df143c9"
+                - projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                  stage: "Requirement"
+                  createdDate: "2024-07-22"
+                  taskId: "aa5d5b95-25d7-4442-9f53-ae4ab6eec652"
+                  status: "inprogress"
+                  name: "Perform functional design review with the tech team"
+                  usecaseId: "d0fbf49e-a71f-4a73-a240-564f2df143c9"
+                - projectId: "315a85e4-38eb-432d-a28b-2a0c661e814c"
+                  stage: "Requirement"
+                  createdDate: "2024-07-22"
+                  taskId: "b4a209e3-6e8a-4b3f-a765-cc841bbf16c4"
+                  status: "inprogress"
+                  name: "Create Screen Designs"
+                  usecaseId: "d0fbf49e-a71f-4a73-a240-564f2df143c9"
+  /user:
+    get:
+      tags:
+        - user
+      summary: Get all users
+      operationId: getAllUsers
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    role:
+                      type: string
+                    userId:
+                      type: string
+                    updatedAt:
+                      type: integer
+                    createdAt:
+                      type: integer
+                    name:
+                      type: string
+              example:
+                - role: backend
+                  userId: "387d079f-8c11-45a3-8d21-1cb06f5504e4"
+                  updatedAt: 1721654979340
+                  createdAt: 1721654979337
+                  name: sohail
+                - role: frontend
+                  userId: "23bb3f36-b2d5-42e1-ba6c-42a061b838ea"
+                  updatedAt: 1721655067857
+                  createdAt: 1721655067856
+                  name: ali
+
+    post:
+      tags:
+        - user
+      summary: Create a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                role:
+                  type: string
+            example:
+              name: sohail
+              role: backend
+
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  name:
+                    type: string
+                  role:
+                    type: string
+                  createdAt:
+                    type: integer
+                  updatedAt:
+                    type: integer
+              example:
+                userId: "387d079f-8c11-45a3-8d21-1cb06f5504e4"
+                name: sohail
+                role: backend
+                createdAt: 1721654979337
+                updatedAt: 1721654979340
+
+  /user/{id}:
+    put:
+      tags:
+        - user
+      summary: Update user by ID
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: User object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '200':
+          description: User updated
+      x-handler: packages/functions/api/user/user.update
+  /uploadUrl:
+    get:
+      summary: Get pre-signed S3 URL
+      operationId: getPreSignedS3url
+      responses:
+        '200':
+          description: Pre-signed S3 URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+      x-handler: packages/functions/api/media/getPreSignedS3url.handler
+  /task/{id}/complete:
+    put:
+      tags:
+        - task
+      summary: Complete task by ID
+      operationId: completeTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK. Successful response for task completion message.
+          content:
+            application/json:
+              example:
+                message: "task completed"
+
