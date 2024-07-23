@@ -179,30 +179,21 @@ export const getTasksByUsecaseId = async (usecaseId: string) => {
 			usecaseId: usecaseId,
 		})
 		.go();
-	console.log(JSON.stringify(allItems));
 	return allItems.data;
 };
 
 export const getTask = async (taskId: string) => {
-	try {
-		const res = await Tasks.get({
-			taskId: taskId,
-		}).go();
-		return res.data;
-	} catch (err) {
-		console.log(err.message);
-	}
+	const res = await Tasks.get({
+		taskId: taskId,
+	}).go();
+	return res.data;
 };
 
 export const updateTaskStatus = async (taskId: string, status: string) => {
-	try {
-		const res = await Tasks.update({ taskId: taskId })
-			.set({ status: status })
-			.go();
-		return res.data;
-	} catch (err) {
-		console.log(err.message);
-	}
+	const res = await Tasks.update({ taskId: taskId })
+		.set({ status: status })
+		.go();
+	return res.data;
 };
 
 export const getTasksByStatus = async (status: string = "pending") => {

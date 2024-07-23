@@ -9,7 +9,10 @@ export const bodyValidator = (schema: z.Schema) => ({
 		const data = JSON.parse(body);
 		const result = schema.safeParse(data);
 		if (!result.success) {
-			throw new Error("invalid request body");
+			const errorMessage = result.error.errors
+				.map((err) => `${err.path.join(".")}: ${err.message}`)
+				.join("; ");
+			throw new Error(`Validation error: ${errorMessage}`);
 		}
 	},
 });

@@ -3,7 +3,6 @@ import crypto from "crypto";
 import { Table } from "sst/node/table";
 import { client } from "./dynamo";
 import { UsecaseResponse } from "../types/usecase";
-import { stat } from "fs";
 
 export const Usecases = new Entity(
 	{

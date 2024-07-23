@@ -326,7 +326,7 @@ export function API({ stack }: StackContext) {
 			"POST /workflow": {
 				function: {
 					handler:
-						"packages/functions/api/workflow/workflow.addTemplate",
+						"packages/functions/api/workflow/template.addTemplate",
 					permissions: ["states:DescribeStateMachine"],
 				},
 			},
@@ -352,19 +352,10 @@ export function API({ stack }: StackContext) {
 				"packages/functions/api/usecase/usecase.getUsecaseById",
 			"GET /usecase/{id}/task":
 				"packages/functions/api/task/task.getTasks",
-			"POST /resource":
-				"packages/functions/api/resource/addResource.handler",
 			"PUT /task/{id}/complete": {
 				function: {
 					handler: "packages/functions/api/task/task.completeTask",
 					permissions: ["states:SendTaskSuccess"],
-				},
-			},
-			"GET /task/status/complete": {
-				function: {
-					handler:
-						"packages/functions/api/user/getTaskbySatus.handler",
-					// permissions: ["states:SendTaskSuccess"],
 				},
 			},
 			// "GET /user": "packages/functions/api/user/getAlluser.handler",

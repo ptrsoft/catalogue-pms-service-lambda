@@ -27,12 +27,16 @@ export const getTasks: APIGatewayProxyHandler = middy(
 			};
 		}
 		const tasks = await getTasksByUsecaseId(usecaseId);
+		const res = tasks.map((task) => {
+			const { arn, token, ...resData } = task;
+			return resData;
+		});
 		return {
 			statusCode: 200,
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 			},
-			body: JSON.stringify(tasks),
+			body: JSON.stringify(res),
 		};
 	}
 ).use(errorHandler());
