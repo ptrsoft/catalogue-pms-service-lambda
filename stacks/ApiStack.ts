@@ -1,17 +1,12 @@
-import { StackContext, Api, Table, Script, Cognito } from "sst/constructs";
+import { StackContext, Api, Table, Script, Cognito, use } from "sst/constructs";
 import { StateMachine } from "aws-cdk-lib/aws-stepfunctions";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import { Function } from "sst/constructs";
 import { Bucket } from "sst/constructs";
-import { Duration } from "aws-cdk-lib/core";
 import * as iam from "aws-cdk-lib/aws-iam";
-import {
-	StringAttribute,
-	NumberAttribute,
-	BooleanAttribute,
-	DateTimeAttribute,
-} from "aws-cdk-lib/aws-cognito";
+import { AuthStack } from "./AuthStack";
+import { UserPool } from "aws-cdk-lib/aws-cognito";
 
 export function API({ stack }: StackContext) {
 	const pmsTable = new Table(stack, "pmsTable", {
@@ -35,19 +30,6 @@ export function API({ stack }: StackContext) {
 	});
 
 	const tables = [pmsTable];
-
-	// const cognito = new Cognito(stack, "Auth", {
-	// 	cdk: {
-	// 		userPool: {
-	// 			customAttributes: {
-	// 				userId: new StringAttribute({
-	// 					mutable: false,
-	// 				}),
-	// 				createdAt: new DateTimeAttribute(),
-	// 			},
-	// 		},
-	// 	},
-	// });
 
 	const pmsBucket = new Bucket(stack, "pmsBucket", {
 		cors: [
@@ -317,13 +299,34 @@ export function API({ stack }: StackContext) {
 		}
 	);
 
+	const cognito = use(AuthStack);
+
 	const api = new Api(stack, "api", {
+		authorizers: {
+			UserPoolAuthorizer: {
+				type: "user_pool",
+				userPool: {
+					id: cognito.userPoolId,
+					clientIds: [cognito.userPoolClientId],
+				},
+			},
+		},
 		defaults: {
 			function: {
 				bind: tables,
 			},
+			authorizer: "UserPoolAuthorizer",
 		},
 		routes: {
+			"POST /auth": {
+				authorizer: "none",
+				function: {
+					handler: "packages/functions/api/auth/auth.signIn",
+					environment: {
+						COGNITO_CLIENT: cognito.userPoolClientId,
+					},
+				},
+			},
 			"POST /project": "packages/functions/api/project/project.post",
 			"GET /project/{id}/team":
 				"packages/functions/api/project/project.getProjectTeam",
@@ -377,11 +380,12 @@ export function API({ stack }: StackContext) {
 			"PUT /user/{id}": "packages/functions/api/user/user.update",
 			// "DELETE /user/{id}": "packages/functions/api/user/user.handler",
 			"POST /user": {
+				authorizer: "none",
 				function: {
 					handler: "packages/functions/api/user/user.post",
-					// environment: {
-					// 	COGNITO_CLIENT: cognito.userPoolClientId,
-					// },
+					environment: {
+						COGNITO_CLIENT: cognito.userPoolClientId,
+					},
 				},
 			},
 			"GET /uploadUrl": {
@@ -419,9 +423,8 @@ export function API({ stack }: StackContext) {
 	});
 
 	return {
-		api,
 		pmsTable,
 		stateMachine,
-		// cognito,
+		api,
 	};
 }

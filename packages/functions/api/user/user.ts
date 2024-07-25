@@ -14,6 +14,7 @@ import {
 	CognitoIdentityProviderClient,
 	SignUpCommand,
 	AdminDeleteUserCommand,
+	SignUpCommandOutput,
 } from "@aws-sdk/client-cognito-identity-provider";
 
 const cognitoClient = new CognitoIdentityProviderClient({
@@ -33,7 +34,6 @@ export const post: APIGatewayProxyHandler = middy(
 		};
 		// const org_id = uuid()
 		const userId = crypto.randomUUID();
-
 		const input = {
 			ClientId: process.env.COGNITO_CLIENT,
 			Username: email,
@@ -44,12 +44,12 @@ export const post: APIGatewayProxyHandler = middy(
 				// 	Value: org_id,
 				// },
 				{
-					Name: "custom:useId",
+					Name: "custom:userId",
 					Value: userId,
 				},
 				{
 					Name: "custom:role",
-					Value: "admin",
+					Value: role,
 				},
 			],
 			// DesiredDeliveryMediums: "EMAIL",
@@ -57,8 +57,13 @@ export const post: APIGatewayProxyHandler = middy(
 		};
 
 		const command = new SignUpCommand(input);
-		const signupResponse = await cognitoClient.send(command);
-		// const newUser = await addUser(user);
+		const signupResponse: SignUpCommandOutput = await cognitoClient.send(
+			command
+		);
+		// const refreshToken =
+		// 	signupResponse && signupResponse.
+
+		const newUser = await addUser(user);
 		return {
 			statusCode: 200,
 			headers: {
